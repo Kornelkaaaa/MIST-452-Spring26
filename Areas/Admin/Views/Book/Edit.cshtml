@@ -1,0 +1,81 @@
+﻿@model BooksSpring26.Models.ViewModels.BookWithCategoriesVM
+@using BooksSpring26.Models.ViewModels
+
+<h1>Edit Book Details</h1>
+
+<div class="border col-md-10 mx-auto">
+
+	<form asp-action="Edit" enctype="multipart/form-data">
+
+        <input hidden asp-for="Book.BookId" />
+        <input hidden asp-for="Book.ImgUrl" />
+
+		<div asp-validation-summary="All" class="text-danger"></div>
+
+		<div class="form-group row m-4">
+
+			<label asp-for="Book.Title" class="control-label col-md-2"></label> <!--Connecting with model attribute-->
+			<div class="col-md-10">
+				<input asp-for="Book.Title" class="form-control" />
+				<span asp-validation-for="Book.Title" class="text-bg-danger"></span>
+			</div>
+		</div>
+
+		<div class="form-group row m-4">
+
+			<label asp-for="Book.Author" class="control-label col-md-2"></label> <!--Connecting with model attribute-->
+			<div class="col-md-10">
+				<input asp-for="Book.Author" class="form-control" />
+				<span asp-validation-for="Book.Author" class="text-bg-danger"></span>
+			</div>
+		</div>
+
+		<div class="form-group row m-4">
+
+			<label asp-for="Book.Description" class="control-label col-md-2"></label> <!--Connecting with model attribute-->
+			<div class="col-md-10">
+				<input asp-for="Book.Description" class="form-control" />
+				<span asp-validation-for="Book.Description" class="text-bg-danger"></span>
+			</div>
+		</div>
+
+		<div class="form-group row m-4">
+
+			<label asp-for="Book.Price" class="control-label col-md-2"></label> <!--Connecting with model attribute-->
+			<div class="col-md-10">
+				<input asp-for="Book.Price" class="form-control" />
+				<span asp-validation-for="Book.Price" class="text-bg-danger"></span>
+			</div>
+		</div>
+
+		<div class="form-group row m-4">
+			<label asp-for="Book.CategoryId" class="control-label col-md-2"></label>
+			<div class="col-md-10">
+				<select asp-for="Book.CategoryId"
+						class="form-control"
+						asp-items="Model.ListOfCategories">
+					<option disabled selected value="">-- Select Category --</option>
+				</select>
+
+				<span asp-validation-for="Book.CategoryId" class="text-danger"></span>
+			</div>
+		</div>
+
+		<div class="form-group row m-4">
+
+			<label asp-for="Book.ImgUrl" class="control-label col-md-2"></label> <!--Connecting with model attribute-->
+			<div class="col-md-10">
+				<input type="file" name="imgFile" class="form-control" />
+			</div>
+		</div>
+
+
+		<div class="form-group m-4">
+			<input type="submit" value="Edit New Book" class="form-control btn btn-primary" />
+		</div>
+	</form>
+
+
+	
+
+</div>

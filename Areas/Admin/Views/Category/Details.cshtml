@@ -1,0 +1,30 @@
+﻿@model Category
+
+<h1>Details For @Model.Name</h1>
+
+<div class="border col-md-10 mx-auto p-4">
+
+    <div class="form-group row mb-3">
+        <label class="control-label col-md-6 text-center">ID Number:</label>
+        <div class="col-md-6">
+            <p class="form-check">@Model.CategoryId</p>
+        </div>
+    </div>
+
+    <div class="form-group row mb-3">
+        <label class="control-label col-md-6 text-center">Name:</label>
+        <div class="col-md-6">
+            <p class="form-check">@Model.Name</p>
+        </div>
+    </div>
+
+    <div class="form-group row mb-3">
+        <label class="control-label col-md-6 text-center">Description:</label>
+        <div class="col-md-6">
+            <p class="form-check">@Model.Description</p>
+        </div>
+    </div>
+    <div class="text-center">
+        <a asp-action="Index" class="btn btn-outline-secondary mt-3">Go back to Categories</a>
+	</div>
+</div>

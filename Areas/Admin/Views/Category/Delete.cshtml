@@ -1,0 +1,33 @@
+﻿@model Category
+
+<h1>Update Your Category</h1>
+
+<div class="border col-md-10 mx-auto">
+
+	<form asp-action="Delete">
+
+		<input type="hidden" asp-for="CategoryId" />
+
+		<div class="form-group row m-4">
+
+			<label asp-for="Name" class="control-label col-md-2"></label> <!--Connecting with model attribute-->
+			<div class="col-md-10">
+				<input asp-for="Name" class="form-control" />
+			</div>
+		</div>
+
+		<div class="form-group row m-4">
+
+			<label asp-for="Description" class="control-label col-md-2"></label> <!--Connecting with model attribute-->
+			<div class="col-md-10">
+				<input asp-for="Description" class="form-control" />
+			</div>
+		</div>
+
+
+		<div class="form-group m-4">
+			<input type="submit" value="Delete The Category" class="form-control btn btn-outline-danger" />
+		</div>
+	</form>
+
+</div>

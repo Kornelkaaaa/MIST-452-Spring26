@@ -1,0 +1,41 @@
+﻿@model Category
+
+<h1>Create a New Category</h1>
+
+<div class="border col-md-10 mx-auto">
+	
+<form asp-action="Create">
+
+	<div asp-validation-summary="All" class="text-danger"></div>
+
+	<div class="form-group row m-4">
+
+		<label asp-for="Name" class="control-label col-md-2"></label> <!--Connecting with model attribute-->
+		<div class="col-md-10"> 
+			<input asp-for="Name" class="form-control"  />
+			<span asp-validation-for="Name" class="text-bg-danger"></span>
+		</div>
+	</div>
+
+		<div class="form-group row m-4">
+
+			<label asp-for="Description" class="control-label col-md-2"></label> <!--Connecting with model attribute-->
+			<div class="col-md-10">
+				<input asp-for="Description" class="form-control" />
+				<span asp-validation-for="Description" class="text-bg-danger"></span>
+			</div>
+		</div>
+
+
+	<div class="form-group m-4">
+			<input type="submit" value="Create New Category" class="form-control btn btn-primary" />
+	</div>
+</form>
+
+
+@section Scripts
+{
+	<partial name="_ValidationScriptsPartial" /> <!--when you are leaving blank, the error info will be disapierd-->
+}
+
+</div>
