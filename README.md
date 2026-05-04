@@ -2,8 +2,7 @@
 
 ASP.NET Core 10 MVC bookstore project for MIST 452 (Spring 2026).
 
-## URL
-mist452-invidual-project.azurewebsites.net
+**Live demo:** [mist452-invidual-project.azurewebsites.net](https://mist452-invidual-project.azurewebsites.net)
 
 ## Roles
 
