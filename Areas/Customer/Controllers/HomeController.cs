@@ -17,10 +17,21 @@ namespace BooksSpring26.Areas.Customer.Controllers
         {
             _dcContext = DbContext;
         }
-        public IActionResult Index()
+        public IActionResult Index(string? searchTerm)
         {
-            var listOfBooks = _dcContext.Books.Include(c => c.category); //if you fetch books, include the related category data
-            return View(listOfBooks.ToList());
+            var query = _dcContext.Books.Include(c => c.category).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var term = searchTerm.Trim();
+                query = query.Where(b =>
+                    b.Title.Contains(term) ||
+                    b.Author.Contains(term) ||
+                    (b.category != null && b.category.Name.Contains(term)));
+            }
+
+            ViewData["SearchTerm"] = searchTerm;
+            return View(query.ToList());
         }
 
         public IActionResult Privacy()

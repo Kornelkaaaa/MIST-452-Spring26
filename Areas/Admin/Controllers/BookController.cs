@@ -1,6 +1,7 @@
 ﻿using BooksSpring26.Data;
 using BooksSpring26.Models;
 using BooksSpring26.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 namespace BooksSpring26.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = DbInitializer.AdminRole)]
     public class BookController : Controller
     {
         private BooksDbContext _dbContext;

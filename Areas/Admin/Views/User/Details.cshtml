@@ -1,0 +1,36 @@
+@model BooksSpring26.ApplicationUser
+
+<div class="card shadow border-1 my-4">
+    <div class="card-header bg-primary text-white py-3">
+        <h2>User Details</h2>
+    </div>
+    <div class="card-body p-4">
+        <dl class="row">
+            <dt class="col-sm-3">Name</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">Phone</dt>
+            <dd class="col-sm-9">@Model.PhoneNumber</dd>
+
+            <dt class="col-sm-3">Street Address</dt>
+            <dd class="col-sm-9">@Model.StreetAddress</dd>
+
+            <dt class="col-sm-3">City</dt>
+            <dd class="col-sm-9">@Model.City</dd>
+
+            <dt class="col-sm-3">State</dt>
+            <dd class="col-sm-9">@Model.State</dd>
+
+            <dt class="col-sm-3">Postal Code</dt>
+            <dd class="col-sm-9">@Model.PostalCode</dd>
+
+            <dt class="col-sm-3">Total Orders</dt>
+            <dd class="col-sm-9">@ViewData["OrderCount"]</dd>
+        </dl>
+
+        <a class="btn btn-secondary" asp-area="Admin" asp-controller="User" asp-action="Index">Back to list</a>
+    </div>
+</div>

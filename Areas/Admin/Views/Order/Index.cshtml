@@ -1,21 +1,40 @@
-﻿@model IEnumerable<Order>
+@model IEnumerable<Order>
 
-<div claass="card shadow border-1 my-4">
-    <div class="card pt-2 pb-2">
-        <h1>Order List</h1>
+<div class="card shadow border-1 my-4">
+    <div class="card-header bg-primary text-white py-3">
+        <h2>Order List</h2>
     </div>
-</div>
-
-<div class="card-body p-4">
-    <table class="table table-bordered table-striped table-hover rounded-3">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Order Date</th>
-                <th>Customer Name</th>
-                <th>Email</th>
-                <th>Total Amount</th>
-            </tr>
-        </thead>
-    </table>
+    <div class="card-body p-4">
+        <table class="table table-bordered table-striped table-hover rounded-3">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Order Date</th>
+                    <th>Customer Name</th>
+                    <th>Email</th>
+                    <th>Total Amount</th>
+                    <th>Order Status</th>
+                    <th>Payment Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>@order.OrderId</td>
+                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                        <td>@order.CustomerName</td>
+                        <td>@order.ApplicationUser?.Email</td>
+                        <td>@order.OrderTotal.ToString("c")</td>
+                        <td>@order.OrderStatus</td>
+                        <td>@order.PaymentStatus</td>
+                        <td>
+                            <a class="btn btn-sm btn-primary" asp-area="Admin" asp-controller="Order" asp-action="Details" asp-route-id="@order.OrderId">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

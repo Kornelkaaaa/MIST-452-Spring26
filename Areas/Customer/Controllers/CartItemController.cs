@@ -1,10 +1,11 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using BooksSpring26.Data;
 using BooksSpring26.Models;
 using BooksSpring26.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Stripe.Checkout;
 
 namespace BooksSpring26.Areas.Customer.Controllers
 {
@@ -15,7 +16,7 @@ namespace BooksSpring26.Areas.Customer.Controllers
 
         private BooksDbContext _dcContext;
 
-        public CartItemController(BooksDbContext DbContext)//dependency / i think is indepent injection he will ask about this on the quiz 
+        public CartItemController(BooksDbContext DbContext)//dependency / i think is indepent injection he will ask about this on the quiz
         {
             _dcContext = DbContext;
         }
@@ -29,7 +30,7 @@ namespace BooksSpring26.Areas.Customer.Controllers
             ShoppingCartVM shoppingCartVM = new ShoppingCartVM
             {
                 CartItems = cartItems,
-                Order = new Order() ////check this later 
+                Order = new Order() ////check this later
             };
 
 
@@ -38,7 +39,7 @@ namespace BooksSpring26.Areas.Customer.Controllers
             {
                 var subtotal = cartItem.Quantity * cartItem.Book.Price;
 
-                shoppingCartVM.Order.OrderTotal += subtotal;///add something 
+                shoppingCartVM.Order.OrderTotal += subtotal;///add something
             }
 
             return View(shoppingCartVM);
@@ -104,7 +105,7 @@ namespace BooksSpring26.Areas.Customer.Controllers
             }
 
 
-            shoppingCartVM.Order.ApplicationUser = _dcContext.ApplicationUsers.Find(userID);
+            shoppingCartVM.Order.ApplicationUser = _dcContext.Users.Find(userID);
 
             shoppingCartVM.Order.CustomerName = shoppingCartVM.Order.ApplicationUser.Name;
 
@@ -118,18 +119,16 @@ namespace BooksSpring26.Areas.Customer.Controllers
 
             shoppingCartVM.Order.Phone = shoppingCartVM.Order.ApplicationUser.PhoneNumber;
 
-            return View();
+            return View(shoppingCartVM);
         }
 
         [HttpPost]
         [ActionName("ReviewOrder")]
         public IActionResult ReviewOrderPOST(ShoppingCartVM shoppingCartVM)
         {
-            //_dcContext.Order.Add(shoppingCartVM.Order);
-
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var cartItemsList = _dcContext.CartItems.Where(c => c.UserId == userId).Include(c => c.Book).Include(c => c.Book);
+            var cartItemsList = _dcContext.CartItems.Where(c => c.UserId == userId).Include(c => c.Book);
 
             shoppingCartVM.CartItems = cartItemsList;
 
@@ -140,46 +139,84 @@ namespace BooksSpring26.Areas.Customer.Controllers
 
             foreach (var cartItem in shoppingCartVM.CartItems)
             {
-                cartItem.Subtotal = cartItem.Quantity * cartItem.Book.Price;
+                cartItem.Subtotal = cartItem.Book.Price * cartItem.Quantity;
                 shoppingCartVM.Order.OrderTotal += cartItem.Subtotal;
             }
 
-            //set only the server -contrlled firels
+            //set only the server-controlled fields
             shoppingCartVM.Order.ApplicationUserId = userId;
-
             shoppingCartVM.Order.OrderDate = DateOnly.FromDateTime(DateTime.Now);
-
             shoppingCartVM.Order.OrderStatus = "Pending";
-
             shoppingCartVM.Order.PaymentStatus = "Pending";
 
-            //save order
+            //save order - creates a new order so we can use OrderId for order details
             _dcContext.Order.Add(shoppingCartVM.Order);
-            //create a new order in the orders tabke we can use the order id to link the order details table
             _dcContext.SaveChanges();
 
+            //save order details
             foreach (var cartItem in shoppingCartVM.CartItems)
             {
-                OrderDetail orderDetails = new OrderDetail
+                OrderDetail orderDetail = new OrderDetail
                 {
-                    BookId = cartItem.BookId,
                     OrderId = shoppingCartVM.Order.OrderId,
+                    BookId = cartItem.BookId,
                     Quantity = cartItem.Quantity,
                     Price = cartItem.Book.Price
                 };
-                _dcContext.OrderDetail.Add(orderDetails);
+                _dcContext.OrderDetail.Add(orderDetail);
             }
-
             _dcContext.SaveChanges();
 
+            var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+            var options = new Stripe.Checkout.SessionCreateOptions
+            {
+                SuccessUrl = domain + $"customer/cartitem/OrderConfirmation?id={shoppingCartVM.Order.OrderId}",
+                CancelUrl = domain + "customer/cartitem/index",
+                LineItems = new List<Stripe.Checkout.SessionLineItemOptions>(),
+                Mode = "payment",
+            };
 
-            return RedirectToAction("OrderConfiramtion", new { id = shoppingCartVM.Order.OrderId });
+            foreach (var item in shoppingCartVM.CartItems)
+            {
+                var sessionLineItem = new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(item.Book.Price * 100),
+                        Currency = "usd",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.Book.Title
+                        }
+                    },
+                    Quantity = item.Quantity
+                };
+                options.LineItems.Add(sessionLineItem);
+            }
+
+            var service = new Stripe.Checkout.SessionService();
+            Stripe.Checkout.Session session = service.Create(options);
+            shoppingCartVM.Order.SessionID = session.Id;
+            _dcContext.SaveChanges();
+
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
         }
 
-        public IActionResult OrderConfiramtion(int id)
+        public IActionResult OrderConfirmation(int id)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Order order = _dcContext.Order.Find(id);
+            var sessID = order.SessionID;
+            var service = new SessionService();
+            Session session = service.Get(sessID);
 
+            if (session.PaymentStatus.ToLower() == "paid")
+            {
+                order.PaymentIntentID = session.PaymentIntentId;
+                order.PaymentStatus = "Approved";
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             List<CartItem> listOfCartItems = _dcContext.CartItems.ToList().Where(c => c.UserId == userId).ToList();
 
             _dcContext.CartItems.RemoveRange(listOfCartItems);

@@ -5,6 +5,22 @@
 @model List<Book>
 
     <div class="container">
+        <form method="get" asp-area="Customer" asp-controller="Home" asp-action="Index" class="my-3">
+            <div class="input-group">
+                <input type="text" name="searchTerm" value="@ViewData["SearchTerm"]" class="form-control" placeholder="Search by title, author, or category..." />
+                <button type="submit" class="btn btn-primary">Search</button>
+                @if (!string.IsNullOrWhiteSpace(ViewData["SearchTerm"] as string))
+                {
+                    <a class="btn btn-outline-secondary" asp-area="Customer" asp-controller="Home" asp-action="Index">Clear</a>
+                }
+            </div>
+        </form>
+
+        @if (Model.Count == 0)
+        {
+            <div class="alert alert-info">No books found.</div>
+        }
+
         <div class="row">
             @foreach( var eachBook in Model)
             {

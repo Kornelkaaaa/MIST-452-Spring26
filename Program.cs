@@ -1,7 +1,10 @@
+using BooksSpring26;
 using BooksSpring26.Data;
-using Microsoft.EntityFrameworkCore;
+using BooksSpring26.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 namespace BooksSpring26
 {
@@ -11,24 +14,23 @@ namespace BooksSpring26
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            //1. Get the connection string from appsettings.json
             var connString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            //2. Register the DbContext with the dependency injection container 
-            //define options such that our application is configured to use the DbContext class with SqlServer
-            //and the connection string we retrieved from appsettings.json
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
+
             builder.Services.AddDbContext<BooksDbContext>(options => options.UseSqlServer(connString));
 
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<BooksDbContext>().AddDefaultTokenProviders();
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<BooksDbContext>()
+                .AddDefaultTokenProviders().AddDefaultUI();
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
-                options.LoginPath = $"/Identity/Account/Login"; // Set the login path for unauthenticated users
-                options.LogoutPath = $"/Identity/Account/Logout"; // Set the access denied path for unauthorized us\ers
-                options.AccessDeniedPath = $"/Identity/Account/AccessDenied"; // Set the access denied path for unauthorized users
+                options.LoginPath = $"/Identity/Account/Login";
+                options.LogoutPath = $"/Identity/Account/Logout";
+                options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
             });
 
             builder.Services.AddRazorPages();
@@ -36,6 +38,11 @@ namespace BooksSpring26
             builder.Services.AddScoped<IEmailSender, EmailSender>();
 
             var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                DbInitializer.SeedAsync(scope.ServiceProvider).GetAwaiter().GetResult();
+            }
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -48,15 +55,15 @@ namespace BooksSpring26
             app.UseHttpsRedirection();
             app.UseRouting();
 
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapStaticAssets();
 
-            app.MapRazorPages(); //to map the razor pages for identity
+            app.MapRazorPages();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{Area=Customer}/{controller=Home}/{action=Index}/{id?}") //default controller and action set to Home and Index, it may have id but it's optional
+                pattern: "{Area=Customer}/{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
 
             app.Run();

@@ -1,10 +1,12 @@
 ﻿using BooksSpring26.Data;
 using BooksSpring26.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BooksSpring26.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = DbInitializer.AdminRole)]
     public class CategoryController : Controller
     {
         private BooksDbContext _dbContext;

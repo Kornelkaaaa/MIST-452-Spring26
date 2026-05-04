@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BooksSpring26.Data
 {
-    public class BooksDbContext : IdentityDbContext
+    public class BooksDbContext : IdentityDbContext<ApplicationUser>
     {
         public BooksDbContext(DbContextOptions<BooksDbContext> options) : base(options)
         {
@@ -14,8 +14,6 @@ namespace BooksSpring26.Data
         public DbSet<Book> Books { get; set; }           // table: Books
 
         public DbSet<CartItem> CartItems { get; set; }     // table: CartItems
-
-        public DbSet<ApplicationUser> ApplicationUsers { get; set; } // table: ApplicationUsers
 
         public DbSet<Order> Order   { get; set; }
         public DbSet<OrderDetail> OrderDetail { get; set; }

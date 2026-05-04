@@ -34,6 +34,9 @@ namespace BooksSpring26.Models
         public string? TrackingNumber { get; set; }
         public DateOnly? ShippingDate { get; set; }
 
-
+        [ValidateNever]
+        public string? SessionID { get; set; }
+        [ValidateNever]
+        public string? PaymentIntentID { get; set; }
     }
 }
