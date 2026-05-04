@@ -2,6 +2,9 @@
 
 ASP.NET Core 10 MVC bookstore project for MIST 452 (Spring 2026).
 
+## URL
+mist452-invidual-project.azurewebsites.net
+
 ## Roles
 
 The app seeds two roles on first startup (see `Data/DbInitializer.cs`):
