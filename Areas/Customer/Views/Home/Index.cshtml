@@ -1,59 +1,55 @@
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Catalog";
+    var term = ViewData["SearchTerm"] as string;
 }
 @model List<Book>
 
 <div class="container">
-    <div class="text-center mt-4">
-        <h1 class="fw-bold">Discover Your Next Read</h1>
-        <p class="text-muted">Browse our curated collection of books across every genre.</p>
-    </div>
-
-    <form method="get" asp-area="Customer" asp-controller="Home" asp-action="Index" class="search-bar">
-        <div class="d-flex">
-            <div class="input-group">
-                <input type="text" name="searchTerm" value="@ViewData["SearchTerm"]" class="form-control" placeholder="Search by title, author, or category..." />
-                <button type="submit" class="btn btn-primary">Search</button>
+    <div class="catalog-header">
+        <div>
+            <h1>@(string.IsNullOrWhiteSpace(term) ? "Catalog" : $"Results for “{term}”")</h1>
+            <div class="catalog-meta">
+                @Model.Count @(Model.Count == 1 ? "title" : "titles")
             </div>
-            @if (!string.IsNullOrWhiteSpace(ViewData["SearchTerm"] as string))
-            {
-                <a class="btn btn-outline-secondary" asp-area="Customer" asp-controller="Home" asp-action="Index">Clear</a>
-            }
         </div>
-    </form>
+        <form method="get" asp-area="Customer" asp-controller="Home" asp-action="Index" class="catalog-search">
+            <input type="text" name="searchTerm" value="@term" placeholder="Search title, author, category" />
+            <button type="submit" class="btn btn-outline-primary btn-sm">Search</button>
+            @if (!string.IsNullOrWhiteSpace(term))
+            {
+                <a asp-area="Customer" asp-controller="Home" asp-action="Index">clear</a>
+            }
+        </form>
+    </div>
 
     @if (Model.Count == 0)
     {
-        <div class="alert alert-info text-center">No books found.</div>
+        <p class="text-muted">Nothing matched. Try a different search.</p>
     }
 
-    <div class="row book-grid mt-2">
-        @foreach (var eachBook in Model)
+    <div class="row book-grid">
+        @foreach (var book in Model)
         {
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card book-card">
-                    <div class="book-img-wrap">
-                        @if (!string.IsNullOrEmpty(eachBook.ImgUrl))
+            <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                <a class="book-tile" asp-controller="Home" asp-action="Details" asp-route-id="@book.BookId">
+                    <div class="book-cover">
+                        @if (!string.IsNullOrEmpty(book.ImgUrl))
                         {
-                            <img src="@eachBook.ImgUrl" alt="@eachBook.Title" />
+                            <img src="@book.ImgUrl" alt="" />
                         }
                         else
                         {
-                            <span class="placeholder">📖</span>
+                            <span class="no-cover">no cover</span>
                         }
                     </div>
-                    <div class="card-body">
-                        @if (eachBook.category != null)
-                        {
-                            <span class="book-category">@eachBook.category.Name</span>
-                        }
-                        <h5 class="book-title">@eachBook.Title</h5>
-                        <div class="book-author">by @eachBook.Author</div>
-                        <p class="book-desc">@eachBook.Description</p>
-                        <div class="book-price">@eachBook.Price.ToString("c")</div>
-                        <a class="btn btn-outline-primary w-100" asp-controller="Home" asp-action="Details" asp-route-id="@eachBook.BookId">View Details</a>
-                    </div>
-                </div>
+                    @if (book.category != null)
+                    {
+                        <div class="book-meta-cat">@book.category.Name</div>
+                    }
+                    <h2 class="book-title">@book.Title</h2>
+                    <div class="book-author">@book.Author</div>
+                    <div class="book-price">@book.Price.ToString("c")</div>
+                </a>
             </div>
         }
     </div>
