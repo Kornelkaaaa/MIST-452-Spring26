@@ -150,5 +150,49 @@ namespace BooksSpring26.Areas.Admin.Controllers
             return View(bookWithCategoriesVMobj);
 
         }
+
+        public IActionResult Details(int id)
+        {
+            var book = _dbContext.Books.Include(b => b.category).FirstOrDefault(b => b.BookId == id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            return View(book);
+        }
+
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            var book = _dbContext.Books.Include(b => b.category).FirstOrDefault(b => b.BookId == id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            return View(book);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var book = _dbContext.Books.Find(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            if (!string.IsNullOrEmpty(book.ImgUrl))
+            {
+                var imgPath = Path.Combine(_environment.WebRootPath, book.ImgUrl.TrimStart('\\'));
+                if (System.IO.File.Exists(imgPath))
+                {
+                    System.IO.File.Delete(imgPath);
+                }
+            }
+
+            _dbContext.Books.Remove(book);
+            _dbContext.SaveChanges();
+            return RedirectToAction("Index");
+        }
     }
 }

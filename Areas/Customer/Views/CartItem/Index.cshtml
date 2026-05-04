@@ -1,74 +1,60 @@
-﻿@model ShoppingCartVM
+@model ShoppingCartVM
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
 
-<form method="post">
-    <div class="cart text-center rounded shadow">
-        <div class="row m-3 px-4">
-
-            <div class="col-12 rounded py-2 my-3">
-                <p class="card-title text-start text-warning h3">
-                    Shopping Cart
-                </p>
-            </div>
-
-            <div class="col-12">
+<div class="container my-4">
+    <div class="card shadow-sm">
+        <div class="card-header py-3">
+            <h3 class="mb-0">Shopping Cart</h3>
+        </div>
+        <div class="card-body">
+            @if (!Model.CartItems.Any())
+            {
+                <div class="alert alert-info text-center my-3">
+                    Your cart is empty. <a asp-area="Customer" asp-controller="Home" asp-action="Index">Browse books</a>
+                </div>
+            }
+            else
+            {
                 @foreach (var item in Model.CartItems)
                 {
-                    <div class="row border-bottom my-3 align-items-center">
-
-                        <!-- Image -->
+                    <div class="row align-items-center py-3 border-bottom">
                         <div class="col-2 text-center">
-                            <img src="@item.Book.ImgUrl"
-                                 class="img-fluid rounded"
-                                 style="max-width:150px;" />
+                            @if (!string.IsNullOrEmpty(item.Book.ImgUrl))
+                            {
+                                <img src="@item.Book.ImgUrl" class="img-fluid rounded" style="max-height:120px;" alt="@item.Book.Title" />
+                            }
                         </div>
-
-                        <!-- Title + Description -->
-                        <div class="col-6 text-start">
-                            <h5 class="text-uppercase text-secondary">
-                                @item.Book.Title
-                            </h5>
-                            <p class="text-muted">
-                                @item.Book.Description
-                            </p>
+                        <div class="col-5">
+                            <h6 class="fw-bold mb-1">@item.Book.Title</h6>
+                            <p class="text-muted small mb-0">@item.Book.Author</p>
                         </div>
-
-                        <!-- Price -->
-                        <div class="col-2 text-end">
-                            <h6>
-                                @item.Book.Price.ToString("C") x @item.Quantity
-                            </h6>
-                            <br />
-                            Subtotal: @item.Subtotal.ToString("c")
+                        <div class="col-2 text-center">
+                            <div class="text-muted small">Unit price</div>
+                            <div class="fw-semibold">@item.Book.Price.ToString("c")</div>
                         </div>
-
-                        <div class="col-1">
-                            <div class="btn-group">
-                                <a asp-action="IncrementByOne" class="btn btn-outline-primary py-2" asp-route-id="@item.CartItemId">
-                                    +
-                                </a>
-                                &nbsp;
-                                <a asp-action="DecrementByOne" class="btn btn-outline-primary py-2" asp-route-id="@item.CartItemId">
-                                    -
-                                </a>
+                        <div class="col-2 text-center">
+                            <div class="btn-group" role="group">
+                                <a asp-action="DecrementByOne" asp-route-id="@item.CartItemId" class="btn btn-sm btn-outline-secondary">−</a>
+                                <span class="btn btn-sm btn-light disabled">@item.Quantity</span>
+                                <a asp-action="IncrementByOne" asp-route-id="@item.CartItemId" class="btn btn-sm btn-outline-secondary">+</a>
                             </div>
+                            <div class="small text-muted mt-1">@((item.Book.Price * item.Quantity).ToString("c"))</div>
                         </div>
-                        <div class="col-1">
-                            <a asp-action="RemoverFromCart"
-                               class="btn btn-warning"
-                               asp-route-id="@item.CartItemId">
-                               Remove
-                            </a>
+                        <div class="col-1 text-end">
+                            <a asp-action="RemoveFromCart" asp-route-id="@item.CartItemId" class="btn btn-sm btn-outline-danger" title="Remove">×</a>
                         </div>
                     </div>
                 }
-            </div>
-                <div class="col-12 text-end">
-                    Order Total : @Model.Order.OrderTotal.ToString("c")
+
+                <div class="row mt-4">
+                    <div class="col-md-6 offset-md-6 text-end">
+                        <h5>Order Total: <span class="fw-bold">@Model.Order.OrderTotal.ToString("c")</span></h5>
+                        <a asp-action="ReviewOrder" class="btn btn-primary mt-2">Review the Order</a>
+                    </div>
                 </div>
-                <div>
-                    <a asp-action="ReviewOrder" class="btn btn-warning py-2">Review the Order</a>
-                </div>
+            }
         </div>
-        
     </div>
-</form>
+</div>
