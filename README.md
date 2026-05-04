@@ -63,4 +63,3 @@ dotnet ef database update
 dotnet run
 ```
 
-The seeder runs on every startup but only creates roles/admin if they don't already exist.
