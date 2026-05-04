@@ -74,13 +74,13 @@ namespace BooksSpring26.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult CompliteOrder()
+        public IActionResult CompleteOrder()
         {
             Order orderFromDb = _dbContext.Order.Find(orderVM.Order.OrderId);
 
-            orderFromDb.OrderStatus = "Shipped and Comleted";
+            orderFromDb.OrderStatus = "Shipped and Completed";
 
-            orderFromDb.ShippingDate = DateOnly.FromDateTime(DateTime.Now); 
+            orderFromDb.ShippingDate = DateOnly.FromDateTime(DateTime.Now);
 
             _dbContext.Order.Update(orderFromDb);
             _dbContext.SaveChanges();
